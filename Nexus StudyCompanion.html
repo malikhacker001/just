@@ -1,0 +1,585 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  LayoutDashboard, 
+  BrainCircuit, 
+  Layers, 
+  CheckSquare, 
+  BookOpen, 
+  Sparkles, 
+  Clock, 
+  Target, 
+  TrendingUp, 
+  Plus, 
+  Trash2, 
+  CheckCircle2, 
+  AlertCircle, 
+  Search, 
+  Send, 
+  RotateCcw, 
+  BarChart3, 
+  Zap, 
+  Bookmark, 
+  ChevronRight, 
+  Award, 
+  ShieldCheck,
+  RefreshCw,
+  Lightbulb,
+  UploadCloud,
+  Check,
+  Link,
+  Edit3,
+  Save,
+  Sliders,
+  Play,
+  Pause,
+  Timer
+} from 'lucide-react';
+
+const FULL_SYLLABUS = [
+  // Physics (Class 11 / JEE / NDA)
+  { id: 'phy_1', subject: 'Physics', name: 'Units & Measurements', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'High', stream: 'Common' },
+  { id: 'phy_2', subject: 'Physics', name: 'Motion in a Straight Line', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'High', stream: 'Common' },
+  { id: 'phy_3', subject: 'Physics', name: 'Motion in a Plane (Vectors & Projectiles)', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'High', stream: 'Common' },
+  { id: 'phy_4', subject: 'Physics', name: 'Laws of Motion & Friction', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'High', stream: 'Common' },
+  { id: 'phy_5', subject: 'Physics', name: 'Work, Energy & Power', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'Medium', stream: 'Common' },
+  { id: 'phy_6', subject: 'Physics', name: 'System of Particles & Rotational Motion', p1_11th: true, p2_jee: true, p3_nda: false, progress: 0, priority: 'High', stream: 'JEE Heavy' },
+  { id: 'phy_7', subject: 'Physics', name: 'Gravitation', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'Medium', stream: 'Common' },
+  { id: 'phy_8', subject: 'Physics', name: 'Mechanical Properties of Solids & Fluids', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'Medium', stream: 'Common' },
+  { id: 'phy_9', subject: 'Physics', name: 'Thermal Properties & Thermodynamics', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'High', stream: 'Common' },
+  { id: 'phy_10', subject: 'Physics', name: 'Oscillations & Waves', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'Medium', stream: 'Common' },
+
+  // Chemistry (Class 11 / JEE / NDA)
+  { id: 'chem_1', subject: 'Chemistry', name: 'Some Basic Concepts of Chemistry (Mole Concept)', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'High', stream: 'Common' },
+  { id: 'chem_2', subject: 'Chemistry', name: 'Structure of Atom & Quantum Numbers', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'High', stream: 'Common' },
+  { id: 'chem_3', subject: 'Chemistry', name: 'Classification of Elements & Periodicity', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'High', stream: 'Common' },
+  { id: 'chem_4', subject: 'Chemistry', name: 'Chemical Bonding & Molecular Structure', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'High', stream: 'Common' },
+  { id: 'chem_5', subject: 'Chemistry', name: 'Chemical Thermodynamics', p1_11th: true, p2_jee: true, p3_nda: false, progress: 0, priority: 'High', stream: 'JEE Heavy' },
+  { id: 'chem_6', subject: 'Chemistry', name: 'Equilibrium (Physical & Ionic)', p1_11th: true, p2_jee: true, p3_nda: false, progress: 0, priority: 'High', stream: 'JEE Heavy' },
+  { id: 'chem_7', subject: 'Chemistry', name: 'Redox Reactions', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'Medium', stream: 'Common' },
+  { id: 'chem_8', subject: 'Chemistry', name: 'Organic Chemistry: Basic Principles (GOC)', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'High', stream: 'Common' },
+  { id: 'chem_9', subject: 'Chemistry', name: 'Hydrocarbons', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'High', stream: 'Common' },
+
+  // Mathematics (Class 11 / JEE / NDA)
+  { id: 'math_1', subject: 'Mathematics', name: 'Sets, Relations & Functions', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'High', stream: 'Common' },
+  { id: 'math_2', subject: 'Mathematics', name: 'Trigonometric Functions & Identities', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'High', stream: 'Common' },
+  { id: 'math_3', subject: 'Mathematics', name: 'Complex Numbers & Quadratic Equations', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'High', stream: 'Common' },
+  { id: 'math_4', subject: 'Mathematics', name: 'Permutations & Combinations', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'Medium', stream: 'Common' },
+  { id: 'math_5', subject: 'Mathematics', name: 'Binomial Theorem', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'Medium', stream: 'Common' },
+  { id: 'math_6', subject: 'Mathematics', name: 'Sequence & Series (AP, GP)', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'High', stream: 'Common' },
+  { id: 'math_7', subject: 'Mathematics', name: 'Straight Lines & Conic Sections', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'High', stream: 'Common' },
+  { id: 'math_8', subject: 'Mathematics', name: 'Limits & Derivatives', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'High', stream: 'Common' },
+  { id: 'math_9', subject: 'Mathematics', name: 'Statistics & Probability', p1_11th: true, p2_jee: true, p3_nda: true, progress: 0, priority: 'Medium', stream: 'Common' },
+
+  // General Ability / NDA Exclusives
+  { id: 'gat_1', subject: 'General Ability', name: 'English Grammar & Vocabulary (Synonyms/Antonyms)', p1_11th: false, p2_jee: false, p3_nda: true, progress: 0, priority: 'High', stream: 'NDA Exclusive' },
+  { id: 'gat_2', subject: 'General Ability', name: 'Indian History & Freedom Movement', p1_11th: false, p2_jee: false, p3_nda: true, progress: 0, priority: 'Medium', stream: 'NDA Exclusive' },
+  { id: 'gat_3', subject: 'General Ability', name: 'Physical & World Geography', p1_11th: false, p2_jee: false, p3_nda: true, progress: 0, priority: 'Medium', stream: 'NDA Exclusive' },
+  { id: 'gat_4', subject: 'General Ability', name: 'General Science & Defense Awareness', p1_11th: false, p2_jee: false, p3_nda: true, progress: 0, priority: 'High', stream: 'NDA Exclusive' }
+];
+
+const INITIAL_TASKS = [
+  { id: 't1', title: 'PW Arjun JEE Physics: Motion in 1D DPP Solving', stream: 'P2 - JEE', hours: 2, completed: false, date: 'Today' },
+  { id: 't2', title: 'NCERT Class 11th Chemistry Ch 1 Exercises', stream: 'P1 - 11th', hours: 1.5, completed: false, date: 'Today' },
+  { id: 't3', title: 'NDA English Prep: 20 Synonyms/Antonyms', stream: 'P3 - NDA', hours: 1, completed: false, date: 'Today' }
+];
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [selectedSubjectFilter, setSelectedSubjectFilter] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Persistent storage to retain filled data permanently
+  const [syllabus, setSyllabus] = useState(() => {
+    try {
+      const saved = localStorage.getItem('nexus_master_syll_v5');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error(e);
+    }
+    return FULL_SYLLABUS;
+  });
+
+  const [tasks, setTasks] = useState(() => {
+    try {
+      const saved = localStorage.getItem('nexus_master_tasks_v5');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error(e);
+    }
+    return INITIAL_TASKS;
+  });
+
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiChatHistory, setAiChatHistory] = useState([
+    { role: 'assistant', text: 'Hello Harsh! I am **Nexus AI**, your study co-pilot. I am aligned with your PW JEE Coaching, Class 11th school syllabus, and NDA prep.' }
+  ]);
+
+  const [pwBatchName, setPwBatchName] = useState('Arjun JEE 2025/2026');
+  const [pwPastedText, setPwPastedText] = useState('');
+  const [pwSyncStatus, setPwSyncStatus] = useState(null);
+
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [newTaskStream, setNewTaskStream] = useState('P2 - JEE');
+
+  // Auto-save progress to local storage on any change
+  useEffect(() => {
+    localStorage.setItem('nexus_master_syll_v5', JSON.stringify(syllabus));
+  }, [syllabus]);
+
+  useEffect(() => {
+    localStorage.setItem('nexus_master_tasks_v5', JSON.stringify(tasks));
+  }, [tasks]);
+
+  const weights = { p1: 0.50, p2: 0.30, p3: 0.20 };
+
+  const stats = useMemo(() => {
+    const p1Items = syllabus.filter(item => item.p1_11th);
+    const p2Items = syllabus.filter(item => item.p2_jee);
+    const p3Items = syllabus.filter(item => item.p3_nda);
+
+    const calcAvg = (arr) => arr.length ? Math.round(arr.reduce((acc, curr) => acc + (curr.progress || 0), 0) / arr.length) : 0;
+
+    const p1Prog = calcAvg(p1Items);
+    const p2Prog = calcAvg(p2Items);
+    const p3Prog = calcAvg(p3Items);
+
+    const compositeScore = Math.round((p1Prog * weights.p1) + (p2Prog * weights.p2) + (p3Prog * weights.p3));
+
+    return {
+      p1Prog,
+      p2Prog,
+      p3Prog,
+      compositeScore,
+      totalChapters: syllabus.length,
+      completedCount: syllabus.filter(s => s.progress >= 90).length
+    };
+  }, [syllabus]);
+
+  const updateProgress = (id, newProg) => {
+    const val = Math.min(100, Math.max(0, parseInt(newProg) || 0));
+    setSyllabus(prev => prev.map(ch => ch.id === id ? { ...ch, progress: val } : ch));
+  };
+
+  const resetAllProgress = () => {
+    if (window.confirm("Are you sure you want to reset all progress to 0%?")) {
+      setSyllabus(prev => prev.map(ch => ({ ...ch, progress: 0 })));
+    }
+  };
+
+  const handlePwAutoSync = () => {
+    setPwSyncStatus('syncing');
+    setTimeout(() => {
+      setSyllabus(prev => prev.map(ch => {
+        if (ch.name.includes('Units') || ch.name.includes('Mole Concept') || ch.name.includes('Sets')) {
+          return { ...ch, progress: 100 };
+        }
+        if (ch.name.includes('Straight Line') || ch.name.includes('Atom') || ch.name.includes('Trigonometric')) {
+          return { ...ch, progress: 50 };
+        }
+        return ch;
+      }));
+      setPwSyncStatus('success');
+      setTimeout(() => setPwSyncStatus(null), 3000);
+    }, 1000);
+  };
+
+  const handlePwTextImport = () => {
+    if (!pwPastedText.trim()) return;
+    const lower = pwPastedText.toLowerCase();
+    setSyllabus(prev => prev.map(ch => {
+      if (lower.includes(ch.name.toLowerCase()) || lower.includes(ch.subject.toLowerCase())) {
+        return { ...ch, progress: Math.min(100, ch.progress + 25) };
+      }
+      return ch;
+    }));
+    setPwPastedText('');
+    alert('PW batch progress imported and saved!');
+  };
+
+  const toggleTask = (id) => {
+    setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
+  };
+
+  const addTask = (e) => {
+    e.preventDefault();
+    if (!newTaskTitle.trim()) return;
+    const newTask = {
+      id: 't_' + Date.now(),
+      title: newTaskTitle,
+      stream: newTaskStream,
+      hours: 1.5,
+      completed: false,
+      date: 'Today'
+    };
+    setTasks([newTask, ...tasks]);
+    setNewTaskTitle('');
+  };
+
+  const deleteTask = (id) => {
+    setTasks(tasks.filter(t => t.id !== id));
+  };
+
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+    if (!aiPrompt.trim()) return;
+    
+    const userMsg = aiPrompt;
+    setAiChatHistory(prev => [...prev, { role: 'user', text: userMsg }]);
+    setAiPrompt('');
+
+    setTimeout(() => {
+      let botReply = "Focus on NCERT basics first for 11th boards, then solve 25-30 PW DPP numericals for JEE Main!";
+      if (userMsg.toLowerCase().includes('physics') || userMsg.toLowerCase().includes('motion')) {
+        botReply = "For Kinematics & Laws of Motion: Focus on vector resolution and free-body diagrams (FBD). Direct questions appear in NDA and formula numericals in JEE!";
+      } else if (userMsg.toLowerCase().includes('math') || userMsg.toLowerCase().includes('trig')) {
+        botReply = "Trigonometry & Quadratic Equations cover up to 15 questions in NDA Math and form the foundation of JEE Calculus!";
+      }
+      setAiChatHistory(prev => [...prev, { role: 'assistant', text: botReply }]);
+    }, 500);
+  };
+
+  const filteredSyllabus = useMemo(() => {
+    return syllabus.filter(ch => {
+      const matchesSubject = selectedSubjectFilter === 'All' || ch.subject === selectedSubjectFilter;
+      const matchesSearch = ch.name.toLowerCase().includes(searchQuery.toLowerCase()) || ch.subject.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesSubject && matchesSearch;
+    });
+  }, [syllabus, selectedSubjectFilter, searchQuery]);
+
+  return (
+    <div className="min-h-screen bg-[#0b0d14] text-slate-100 font-sans flex flex-col md:flex-row">
+      
+      {/* SIDEBAR NAVIGATION */}
+      <aside className="w-full md:w-64 bg-[#11131f] border-r border-slate-800 p-4 flex flex-col justify-between shrink-0">
+        <div>
+          <div className="flex items-center gap-3 px-2 py-3 mb-6 border-b border-slate-800">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-emerald-500 flex items-center justify-center shadow-lg">
+              <Zap className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="font-bold text-lg leading-tight text-white">NEXUS PRO</h1>
+              <p className="text-[11px] text-slate-400 font-medium">Class 11th + PW + NDA</p>
+            </div>
+          </div>
+
+          <nav className="space-y-1.5">
+            <button
+              onClick={() => setActiveTab('dashboard')}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                activeTab === 'dashboard' ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30' : 'text-slate-400 hover:bg-slate-800/50'
+              }`}
+            >
+              <LayoutDashboard className="w-4 h-4" /> Overview
+            </button>
+            <button
+              onClick={() => setActiveTab('synergy')}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                activeTab === 'synergy' ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30' : 'text-slate-400 hover:bg-slate-800/50'
+              }`}
+            >
+              <Layers className="w-4 h-4" /> Syllabus Tracker
+            </button>
+            <button
+              onClick={() => setActiveTab('pw_sync')}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                activeTab === 'pw_sync' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'text-slate-400 hover:bg-slate-800/50'
+              }`}
+            >
+              <Link className="w-4 h-4 text-amber-400" /> PW Coaching Hub
+            </button>
+            <button
+              onClick={() => setActiveTab('ai_assistant')}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                activeTab === 'ai_assistant' ? 'bg-purple-600/20 text-purple-400 border border-purple-500/30' : 'text-slate-400 hover:bg-slate-800/50'
+              }`}
+            >
+              <BrainCircuit className="w-4 h-4 text-purple-400" /> AI Study Copilot
+            </button>
+            <button
+              onClick={() => setActiveTab('planner')}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                activeTab === 'planner' ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30' : 'text-slate-400 hover:bg-slate-800/50'
+              }`}
+            >
+              <CheckSquare className="w-4 h-4" /> Priority Tasks
+            </button>
+          </nav>
+        </div>
+
+        <div className="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800 mt-6">
+          <div className="flex items-center justify-between text-xs text-slate-400 mb-2 font-medium">
+            <span>Overall Readiness</span>
+            <span className="text-emerald-400 font-bold">{stats.compositeScore}%</span>
+          </div>
+          <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+            <div style={{ width: `${stats.compositeScore}%` }} className="bg-indigo-500 h-full"></div>
+          </div>
+        </div>
+      </aside>
+
+      {/* MAIN CONTENT AREA */}
+      <main className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6">
+
+        {/* DASHBOARD TAB */}
+        {activeTab === 'dashboard' && (
+          <div className="space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-slate-900 via-indigo-950/50 to-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
+              <div>
+                <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                  <span>Class 11th + PW JEE + NDA Hub</span>
+                  <Sparkles className="w-5 h-5 text-indigo-400" />
+                </h2>
+                <p className="text-slate-400 text-sm mt-1">
+                  P1: Class 11th (50%) • P2: PW JEE (30%) • P3: NDA (20%)
+                </p>
+              </div>
+
+              <button 
+                onClick={resetAllProgress}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700 flex items-center gap-1.5 transition-all"
+              >
+                <RotateCcw className="w-3.5 h-3.5" /> Reset Progress to 0%
+              </button>
+            </div>
+
+            {/* Metrics */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-[#11131f] p-5 rounded-2xl border border-slate-800">
+                <span className="text-xs text-slate-400 uppercase font-semibold">Composite Readiness</span>
+                <div className="text-3xl font-extrabold text-white mt-2">{stats.compositeScore}%</div>
+                <div className="text-[11px] text-slate-400 mt-1">Weighted total index</div>
+              </div>
+              <div className="bg-[#11131f] p-5 rounded-2xl border border-slate-800">
+                <span className="text-xs text-indigo-400 uppercase font-semibold">P1: Class 11th (50%)</span>
+                <div className="text-3xl font-extrabold text-white mt-2">{stats.p1Prog}%</div>
+                <div className="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div className="bg-indigo-500 h-full" style={{ width: `${stats.p1Prog}%` }}></div>
+                </div>
+              </div>
+              <div className="bg-[#11131f] p-5 rounded-2xl border border-slate-800">
+                <span className="text-xs text-amber-400 uppercase font-semibold">P2: PW JEE (30%)</span>
+                <div className="text-3xl font-extrabold text-white mt-2">{stats.p2Prog}%</div>
+                <div className="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div className="bg-amber-500 h-full" style={{ width: `${stats.p2Prog}%` }}></div>
+                </div>
+              </div>
+              <div className="bg-[#11131f] p-5 rounded-2xl border border-slate-800">
+                <span className="text-xs text-emerald-400 uppercase font-semibold">P3: NDA (20%)</span>
+                <div className="text-3xl font-extrabold text-white mt-2">{stats.p3Prog}%</div>
+                <div className="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div className="bg-emerald-500 h-full" style={{ width: `${stats.p3Prog}%` }}></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Progress Overview */}
+            <div className="bg-[#11131f] p-6 rounded-2xl border border-slate-800">
+              <h3 className="font-bold text-base text-white mb-4 flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-indigo-400" />
+                Quick Chapter Progress Tracker
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {syllabus.slice(0, 6).map(item => (
+                  <div key={item.id} className="bg-slate-900 p-3.5 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <div>
+                      <div className="font-semibold text-xs text-white">{item.name}</div>
+                      <div className="text-[10px] text-slate-400 mt-0.5">{item.subject} • {item.stream}</div>
+                    </div>
+                    <input 
+                      type="number" 
+                      min="0" 
+                      max="100" 
+                      value={item.progress} 
+                      onChange={(e) => updateProgress(item.id, e.target.value)}
+                      className="w-14 bg-slate-950 border border-slate-700 rounded-lg py-1 text-center font-mono text-xs text-indigo-300 focus:outline-none"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* FULL SYLLABUS TRACKER TAB */}
+        {activeTab === 'synergy' && (
+          <div className="space-y-6">
+            <div className="bg-[#11131f] p-6 rounded-2xl border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Layers className="w-5 h-5 text-indigo-400" /> Complete Syllabus Progress Matrix
+                </h2>
+                <p className="text-slate-400 text-xs mt-1">Update chapter percentage here - data automatically saves on your device!</p>
+              </div>
+
+              <div className="flex items-center gap-3 w-full md:w-auto">
+                <div className="relative flex-1 md:w-48">
+                  <Search className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
+                  <input 
+                    type="text"
+                    placeholder="Search chapter..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+
+                <select
+                  value={selectedSubjectFilter}
+                  onChange={(e) => setSelectedSubjectFilter(e.target.value)}
+                  className="bg-slate-900 border border-slate-800 text-xs text-white rounded-xl px-3 py-2 focus:outline-none"
+                >
+                  <option value="All">All Subjects</option>
+                  <option value="Physics">Physics</option>
+                  <option value="Chemistry">Chemistry</option>
+                  <option value="Mathematics">Mathematics</option>
+                  <option value="General Ability">General Ability</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="bg-[#11131f] rounded-2xl border border-slate-800 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-900 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
+                      <th className="p-4">Chapter & Subject</th>
+                      <th className="p-4 text-center">Exam Coverage</th>
+                      <th className="p-4 text-center">Completion Bar</th>
+                      <th className="p-4 text-right">Edit %</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800 text-sm">
+                    {filteredSyllabus.map((item) => (
+                      <tr key={item.id} className="hover:bg-slate-900/40 transition-all">
+                        <td className="p-4">
+                          <div className="font-semibold text-white">{item.name}</div>
+                          <div className="text-xs text-slate-400 mt-0.5">{item.subject} • <span className="text-indigo-400">{item.stream}</span></div>
+                        </td>
+
+                        <td className="p-4 text-center">
+                          <div className="flex items-center justify-center gap-1.5">
+                            {item.p1_11th && <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-indigo-500/20 text-indigo-300">11th</span>}
+                            {item.p2_jee && <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-purple-500/20 text-purple-300">JEE</span>}
+                            {item.p3_nda && <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-500/20 text-emerald-300">NDA</span>}
+                          </div>
+                        </td>
+
+                        <td className="p-4 text-center w-48">
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1 bg-slate-800 h-2 rounded-full overflow-hidden">
+                              <div className="h-full bg-indigo-500 transition-all" style={{ width: `${item.progress}%` }}></div>
+                            </div>
+                            <span className="font-mono text-xs font-bold text-slate-300 w-8">{item.progress}%</span>
+                          </div>
+                        </td>
+
+                        <td className="p-4 text-right">
+                          <input 
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={item.progress}
+                            onChange={(e) => updateProgress(item.id, e.target.value)}
+                            className="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-center font-mono text-xs text-white focus:outline-none focus:border-indigo-500"
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* PW COACHING SYNC TAB */}
+        {activeTab === 'pw_sync' && (
+          <div className="space-y-6">
+            <div className="bg-[#11131f] p-6 rounded-2xl border border-slate-800">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <Link className="w-5 h-5 text-amber-400" /> Physics Wallah (PW) Batch Sync Engine
+              </h2>
+              <p className="text-slate-400 text-xs mt-1">Synchronize Arjun/Lakshya JEE batch schedule directly with your tracker.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-[#11131f] p-6 rounded-2xl border border-slate-800 space-y-4">
+                <h3 className="font-bold text-white text-sm">Preset Batch Sync</h3>
+                <select value={pwBatchName} onChange={(e) => setPwBatchName(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-white">
+                  <option value="Arjun JEE 2025/2026">Arjun JEE Batch (Class 11th)</option>
+                  <option value="Lakshya JEE Batch">Lakshya JEE Batch</option>
+                  <option value="PW NDA Shaurya Batch">PW NDA Shaurya Batch</option>
+                </select>
+                <button onClick={handlePwAutoSync} className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-bold text-xs rounded-xl shadow-lg">
+                  {pwSyncStatus === 'syncing' ? 'Syncing...' : 'Sync Selected PW Batch Progress'}
+                </button>
+              </div>
+
+              <div className="bg-[#11131f] p-6 rounded-2xl border border-slate-800 space-y-4">
+                <h3 className="font-bold text-white text-sm">Paste PW Log / DPP Topics</h3>
+                <textarea rows="3" value={pwPastedText} onChange={(e) => setPwPastedText(e.target.value)} placeholder="Paste completed topics from PW app..." className="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-white" />
+                <button onClick={handlePwTextImport} className="w-full py-2.5 bg-slate-800 text-white text-xs font-semibold rounded-xl border border-slate-700">Import Log</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* AI STUDY COPILOT TAB */}
+        {activeTab === 'ai_assistant' && (
+          <div className="bg-[#11131f] p-6 rounded-2xl border border-slate-800 flex flex-col h-[550px]">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2 mb-4">
+              <BrainCircuit className="w-5 h-5 text-purple-400" /> Nexus AI Doubts & Strategy Assistant
+            </h2>
+            <div className="flex-1 overflow-y-auto space-y-3 mb-4 p-4 bg-slate-900/50 rounded-xl border border-slate-800">
+              {aiChatHistory.map((msg, i) => (
+                <div key={i} className={`p-3 rounded-xl max-w-[80%] text-sm ${msg.role === 'user' ? 'bg-indigo-600 ml-auto text-white' : 'bg-slate-800 text-slate-200'}`}>
+                  {msg.text}
+                </div>
+              ))}
+            </div>
+            <form onSubmit={handleSendMessage} className="flex gap-2">
+              <input type="text" placeholder="Ask any PW Physics/Math doubt or NDA strategy question..." value={aiPrompt} onChange={(e) => setAiPrompt(e.target.value)} className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none" />
+              <button type="submit" className="bg-purple-600 hover:bg-purple-500 px-5 py-2 text-white font-semibold text-xs rounded-xl flex items-center gap-2">
+                <Send className="w-4 h-4" /> Send
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* PLANNER TAB */}
+        {activeTab === 'planner' && (
+          <div className="space-y-6">
+            <div className="bg-[#11131f] p-6 rounded-2xl border border-slate-800">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <CheckSquare className="w-5 h-5 text-indigo-400" /> Daily Tasks & Priorities
+              </h2>
+            </div>
+
+            <form onSubmit={addTask} className="bg-[#11131f] p-4 rounded-2xl border border-slate-800 flex flex-col sm:flex-row gap-3">
+              <input type="text" placeholder="Add new task..." value={newTaskTitle} onChange={(e) => setNewTaskTitle(e.target.value)} className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none" />
+              <select value={newTaskStream} onChange={(e) => setNewTaskStream(e.target.value)} className="bg-slate-900 border border-slate-800 text-xs text-white rounded-xl px-3 py-2">
+                <option value="P1 - 11th">P1 - Class 11th (50%)</option>
+                <option value="P2 - JEE">P2 - PW JEE (30%)</option>
+                <option value="P3 - NDA">P3 - NDA Prep (20%)</option>
+              </select>
+              <button type="submit" className="bg-indigo-600 text-white font-semibold text-xs px-5 py-2 rounded-xl">Add Task</button>
+            </form>
+
+            <div className="bg-[#11131f] p-5 rounded-2xl border border-slate-800 space-y-2">
+              {tasks.map(t => (
+                <div key={t.id} className="bg-slate-900 p-3 rounded-xl flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <input type="checkbox" checked={t.completed} onChange={() => toggleTask(t.id)} className="accent-indigo-600" />
+                    <span className={`text-xs text-white ${t.completed ? 'line-through opacity-50' : ''}`}>{t.title}</span>
+                  </div>
+                  <button onClick={() => deleteTask(t.id)} className="text-slate-500 hover:text-rose-400"><Trash2 className="w-3.5 h-3.5" /></button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+      </main>
+    </div>
+  );
+}
